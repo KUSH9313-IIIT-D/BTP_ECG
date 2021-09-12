@@ -11,7 +11,7 @@ var tools = require('./secure');
 
 // Send Mail Message
 var sendmail = require('./sendmail');
-sendmail.sendOTP("anubha@iiitd.ac.in",between(1000,9999),"Anubha");
+sendmail.sendOTP("manish18156@iiitd.ac.in",between(1000,9999),"Anubha");
 
 
 // Encryption 
