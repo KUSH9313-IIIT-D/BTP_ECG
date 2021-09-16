@@ -11,7 +11,7 @@ var cron = require('node-cron');
 const {spawn} = require('child_process');
 
 
-
+//https://www.geeksforgeeks.org/how-to-communicate-json-data-between-python-and-node-js/
 
 
 
@@ -280,12 +280,13 @@ wsServer.on('request', function(request) {
               
             }
             else if(Data.Type=="HRV"){
+            	//{"Email":"mkk9313@gmail.com","Password":"123456789","Type":"HRV","FileName":"covid1.csv"
               var email = Data.Email;
               var password = Data.Password;
               //console.log(UserDataBase.hasOwnProperty(email),UserDataBase[email]);
               if((UserDataBase.hasOwnProperty(email) )){
                 if(password==UserDataBase[email].Password){
-                  var filename = Data.FileName;
+                  var filename = "./uploads/"+Data.FileName;
                   var dataToSend='';
                   // spawn new child process to call the python script
                   const python = spawn('python3', ['pythonTest.py','./'+filename]);
@@ -298,8 +299,10 @@ wsServer.on('request', function(request) {
                   python.on('close', (code) => {
                   console.log(`child process close all stdio with code ${code} `);
                   // send data to browser
-                  
-                  connection.sendUTF(dataToSend)
+                  if(dataToSend!="")
+                  	connection.sendUTF(dataToSend)
+                  else
+                  	connection.sendUTF(`{"Type":"Error","Message":"File Not Found."}`);
                   });
                 }
                 else{
