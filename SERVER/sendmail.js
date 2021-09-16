@@ -32,5 +32,7 @@ module.exports = {
             console.log('Email sent successfully');
         }
     });
+    return OTP;
     },
+    
 };

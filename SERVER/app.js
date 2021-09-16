@@ -7,11 +7,87 @@ const express = require('express');
 const path = require('path');
 const app = express();
 var tools = require('./secure');
+var cron = require('node-cron');
+const {spawn} = require('child_process');
 
+
+
+
+
+
+
+
+
+
+// Python File
+app.get('/python', (req, res) => {
+ 
+  var dataToSend='';
+  // spawn new child process to call the python script
+  const python = spawn('python3', ['pythonTest.py','./covid1.csv']);
+  // collect data from script
+  python.stdout.on('data', function (data) {
+   console.log(`Pipe data from python script ...`);
+   dataToSend += data.toString();
+  });
+  // in close event we are sure that stream from child process is closed
+  python.on('close', (code) => {
+  console.log(`child process close all stdio with code ${code} `);
+  // send data to browser
+  res.send(dataToSend)
+  });
+  
+ })
+
+
+
+
+
+// Save File
+const fs = require('fs')
+
+
+
+
+//const obj = Object.fromEntries({});
+
+
+// Data base
+let UserDataBase={}
+try{
+  let rawdata = fs.readFileSync('DB.json');
+  UserDataBase = JSON.parse(rawdata);
+}
+catch(e){
+  UserDataBase={};
+
+}
+
+var isAnyChangeInDatabase=true;
+
+
+
+//const jsonString = JSON.stringify(customer)
+
+
+
+//          -----------  SAVE FILE TO LOCAL --------------------
+cron.schedule('*/1 * * * *', () => {
+  
+  
+  const jsonString = JSON.stringify(UserDataBase);
+  console.log(`Save Data ${isAnyChangeInDatabase} ${UserDataBase.size} ${jsonString}`);
+  fs.writeFile('./DB.json', jsonString, err => {
+    if (err) {
+        console.log('Error writing file', err)
+    } else {
+        console.log('Successfully wrote file')
+    }
+  })
+});
 
 // Send Mail Message
 var sendmail = require('./sendmail');
-sendmail.sendOTP("manish18156@iiitd.ac.in",between(1000,9999),"Anubha");
 
 
 // Encryption 
@@ -123,6 +199,8 @@ function originIsAllowed(origin) {
 // URL: ws://localhost:8888/
 // Portocol: ecg-protocol
 
+var ValidOTPEmail=new Map();
+
 wsServer.on('request', function(request) {
     if (!originIsAllowed(request.origin)) {
       // Make sure we only accept requests from an allowed origin
@@ -138,24 +216,107 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             var Data = JSON.parse(message.utf8Data);
-            if(Data.Type=="Auth"){
-              console.log('Received_Message: ' + Data);
-              connection.sendUTF(message.utf8Data);
+            if(Data.Type=="SignUp"){
+              //{"Type":"SignUp","Name":"Manish","Email":"mkk9313@gmail.com","Password":"123456789","Confirm":"123456789"}
+              if(!(Data.Email in UserDataBase)){
+                var email = Data.Email;
+                var name = Data.Name;
+                var password = Data.Password;
+                var confirm = Data.Confirm;
+                if(password==confirm){
+                  ValidOTPEmail.set(email,{"OTP":sendmail.sendOTP(email,between(1000,9999),name),"Name":name,"Password":password});
+                  connection.sendUTF(`{"Type":${Data.Type},"Message":"Successful"}`);
+                }
+                else{
+                  connection.sendUTF(`{"Type":"Error","Message":"Password!=Confirm"}`);
+                }
+              }
+              else{
+                connection.sendUTF(`{"Type":"Error","Message":"Email already exist."}`);
+              }
+                
+              //console.log(`Email sent to ${email} for Signup.`);
+              //connection.sendUTF(message.utf8Data);
             }
-            else if(Data.Type=="SendFile"){
-              console.log('Received_Message: ' + Data);
-              connection.sendUTF(`{"Test":25}`);
+            else if(Data.Type=="OTP_Verification"){
+              //{"Type":"OTP_Verification","Email":"mkk9313@gmail.com","OTP":8470}
+              var email = Data.Email;
+              
+              if(ValidOTPEmail.has(email)){
+                var name = ValidOTPEmail.get(email).Name;
+                var password = ValidOTPEmail.get(email).Password;
+                var OTP = Data.OTP;
+                if(OTP==ValidOTPEmail.get(email).OTP){
+                  // Tranfer Files to main database
+                  UserDataBase[email]={"Name":name,"Password":password,"Email":email};
+                  connection.sendUTF(`{"Type":${Data.Type},"Message":"Successful"}`);
+                }
+                else{
+                  connection.sendUTF(`{"Type":"Error","Message":"Wrong OTP"}`);  
+                }
+              }
+              else{
+                connection.sendUTF(`{"Type":"Error","Message":"Need TO generate OTP first."}`);
+              }
+
+              
             }
-            else if(Data.Type=="Process"){
-              console.log('Received_Message: ' + Data);
-              connection.sendUTF(Data);
+            else if(Data.Type=="SignIn"){
+              //{"Type":"SignIn","Name":"Manish","Email":"mkk9313@gmail.com","Password":"123456789"}
+              var email = Data.Email;
+              var password = Data.Password;
+              //console.log(UserDataBase.hasOwnProperty(email),UserDataBase[email]);
+              if((UserDataBase.hasOwnProperty(email) )){
+                if(password==UserDataBase[email].Password){
+                  connection.sendUTF(`{"Type":${Data.Type},"Message":"Successful"}`);
+                }
+                else{
+                  connection.sendUTF(`{"Type":"Error","Message":"Incorrect Password"}`);
+                }
+              }
+              else{
+                connection.sendUTF(`{"Type":"Error","Message":"Incorrect Email"}`);
+              }
+              
             }
+            else if(Data.Type=="HRV"){
+              var email = Data.Email;
+              var password = Data.Password;
+              //console.log(UserDataBase.hasOwnProperty(email),UserDataBase[email]);
+              if((UserDataBase.hasOwnProperty(email) )){
+                if(password==UserDataBase[email].Password){
+                  var filename = Data.FileName;
+                  var dataToSend='';
+                  // spawn new child process to call the python script
+                  const python = spawn('python3', ['pythonTest.py','./'+filename]);
+                  // collect data from script
+                  python.stdout.on('data', function (data) {
+                  console.log(`Pipe data from python script ...`);
+                  dataToSend += data.toString();
+                  });
+                  // in close event we are sure that stream from child process is closed
+                  python.on('close', (code) => {
+                  console.log(`child process close all stdio with code ${code} `);
+                  // send data to browser
+                  
+                  connection.sendUTF(dataToSend)
+                  });
+                }
+                else{
+                  connection.sendUTF(`{"Type":"Error","Message":"Incorrect Password"}`);
+                }
+              }
+              else{
+                connection.sendUTF(`{"Type":"Error","Message":"Incorrect Email"}`);
+              }
+              
+              
+            }
+          
             else{
               console.log('Received_Message: ' + Data.Hello);
               connection.sendUTF(`Wrong Data Type.`);
             }
-            
-            
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
@@ -165,8 +326,6 @@ wsServer.on('request', function(request) {
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
-
-    
 });
 
 
