@@ -1,0 +1,67 @@
+URL: ws://de35-103-25-231-101.ngrok.io/
+Protocol: ecg-protocol
+
+SignUp: {"Type":"SignUp","Name":"Manish","Email":"mkk9313@gmail.com","Password":"123456789","Confirm":"123456789"}
+Response:   {"Type":"SignUp","Message":"Successful"} or
+			{"Type":"Error","Message":"Password!=Confirm"}
+			{"Type":"Error","Message":"Email already exist."}
+
+OTP_Verification: {"Type":"OTP_Verification","Email":"mkk9313@gmail.com","OTP":8470}
+Response:   {"Type":"OTP_Verification","Message":"Successful"} or
+			{"Type":"Error","Message":"Password!=Confirm"}
+			{"Type":"Error","Message":"Email already exist."}
+			{"Type":"Error","Message":"Need TO generate OTP first."} 
+
+SignIn: {"Type":"SignIn","Name":"Manish","Email":"mkk9313@gmail.com","Password":"123456789"}
+Response:   {"Type":"OTP_Verification","Message":"Successful"} or
+			{{"Type":"Error","Message":"Incorrect Password"}
+			{"Type":"Error","Message":"Incorrect Email"}
+
+HRV: {"Email":"mkk9313@gmail.com","Password":"123456789","Type":"HRV","FileName":"covid1.csv"}
+Response:   {
+			   "HRV_MeanNN": {
+			      "0": 636.9333333333
+			   },
+			   "HRV_SDNN": {
+			      "0": 12.2559995027
+			   },
+			   "HRV_RMSSD": {
+			      "0": 8.8317608663
+			   },
+			   "HRV_SDSD": {
+			      "0": 8.8912847809
+			   },
+			   "HRV_CVNN": {
+			      "0": 0.0192422014
+			   },
+			   "HRV_CVSD": {
+			      "0": 0.0138660679
+			   },
+			   "HRV_MedianNN": {
+			      "0": 642
+			   },
+			   "HRV_MadNN": {
+			      "0": 11.8608
+			   },
+			   "HRV_MCVNN": {
+			      "0": 0.0184747664
+			   },
+			   "HRV_IQRNN": {
+			      "0": 16
+			   },
+			   "HRV_pNN50": {
+			      "0": 0
+			   },
+			   "HRV_pNN20": {
+			      "0": 0
+			   },
+			   "HRV_HTI": {
+			      "0": 3
+			   },
+			   "HRV_TINN": {
+			      "0": 31.25
+			   }
+			}
+			{"Type":"Error","Message":"File Not Found."}
+			{"Type":"Error","Message":"Incorrect Password"}
+			{"Type":"Error","Message":"Incorrect Email"}
