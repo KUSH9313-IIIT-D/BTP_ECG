@@ -25,14 +25,41 @@ module.exports = {
         `
     };
     
+    
+    
     mailTransporter.sendMail(mailDetails, function(err, data) {
         if(err) {
             console.log('Error Occurs');
         } else {
-            console.log('Email sent successfully');
+            //console.log('Email sent successfully');
         }
     });
     return OTP;
+    },
+    
+    sendCreated: function (Address,Name,Password,Email) {
+        //// Send Mail Message
+    let mailDetails = {
+        from: 'from.iiitd.ecg@gmail.com',
+        to: Address,
+        subject: 'Thanks For Signing Up.',
+        text: `Hi ${Name},
+	
+	Your account is approved.
+        
+        Your Username/Email is ${Email}.
+        
+        Your Password is ${Password}.
+        
+        `
+    };
+    mailTransporter.sendMail(mailDetails, function(err, data) {
+        if(err) {
+            console.log('Error Occurs');
+        } else {
+            //console.log('Email sent successfully');
+        }
+    });
     },
     
 };

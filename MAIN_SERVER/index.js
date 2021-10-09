@@ -31,12 +31,18 @@ wss.on('connection', function connection(ws) {
       var Data = JSON.parse(message);
     if(Data.Type==="SignUp"){
       //{"Type":"SignUp","Name":"Manish","Email":"mkk9313@gmail.com","Password":"123456789","Confirm":"123456789"}
-      if(!(Data.Email in UserDataBase)){
+      if(typeof Data.Email === 'undefined'){
+      		ws.send(`{"Type":"Error","Message":"Email undefined."}`);
+      }
+      else if(!(Data.Email in UserDataBase)){
         var email = Data.Email;
         var name = Data.Name;
         var password = Data.Password;
         var confirm = Data.Confirm;
-        if(password===confirm){
+        if(typeof password === 'undefined' || typeof confirm === 'undefined'){
+      		ws.send(`{"Type":"Error","Message":"Password or Confirm undefined."}`);
+      	}
+        else if(password===confirm){
           ValidOTPEmail.set(email,{"OTP":sendmail.sendOTP(email,between(100000,999999),name),"Name":name,"Password":password});
           ws.send(`{"Type":"${Data.Type}","Message":"Successful"}`);
         }
@@ -58,6 +64,7 @@ wss.on('connection', function connection(ws) {
         if(OTP===ValidOTPEmail.get(email).OTP){
           // Tranfer Files to main database
           UserDataBase[email]={"Name":name,"Password":password,"Email":email,"Files":[]};
+          sendmail.sendCreated(email,name,password,email);
           ws.send(`{"Type":"${Data.Type}","Message":"Successful"}`);
         }
         else{

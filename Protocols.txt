@@ -1,5 +1,5 @@
-URL: ws://de35-103-25-231-101.ngrok.io/
-Protocol: ecg-protocol
+URL: ws://9cda-103-25-231-101.ngrok.io/ 
+Website URL: https://9cda-103-25-231-101.ngrok.io/
 
 SignUp: {"Type":"SignUp","Name":"Manish","Email":"mkk9313@gmail.com","Password":"123456789","Confirm":"123456789"}
 Response:   {"Type":"SignUp","Message":"Successful"} or
@@ -65,3 +65,58 @@ Response:   {
 			{"Type":"Error","Message":"File Not Found."}
 			{"Type":"Error","Message":"Incorrect Password"}
 			{"Type":"Error","Message":"Incorrect Email"}
+Post Covid: {"Email":"mkk9313@gmail.com","Password":"123456789","Type":"POST_COVID","FileName":"normal3.csv"} or {"Email":"mkk9313@gmail.com","Password":"123456789","Type":"POST_COVID","FileName":"covid3.csv"}
+Response:   {
+			   "HRV_MeanNN": {
+			      "0": 999.75
+			   },
+			   "HRV_SDNN": {
+			      "0": 37.1781425802
+			   },
+			   "HRV_RMSSD": {
+			      "0": 58.5979034242
+			   },
+			   "HRV_SDSD": {
+			      "0": 62.1380950556
+			   },
+			   "HRV_CVNN": {
+			      "0": 0.0371874394
+			   },
+			   "HRV_CVSD": {
+			      "0": 0.0586125566
+			   },
+			   "HRV_MedianNN": {
+			      "0": 1005
+			   },
+			   "HRV_MadNN": {
+			      "0": 57.8214
+			   },
+			   "HRV_MCVNN": {
+			      "0": 0.0575337313
+			   },
+			   "HRV_IQRNN": {
+			      "0": 66.5
+			   },
+			   "HRV_pNN50": {
+			      "0": 37.5
+			   },
+			   "HRV_pNN20": {
+			      "0": 75
+			   },
+			   "HRV_HTI": {
+			      "0": 4
+			   },
+			   "HRV_TINN": {
+			      "0": 0
+			   },
+			   "Output": "Normal"
+			}	
+			{"Type":"Error","Message":"File Not Found."}
+			{"Type":"Error","Message":"Incorrect Password"}
+			{"Type":"Error","Message":"Incorrect Email"}
+Unique File Name: {"Email":"mkk9313@gmail.com","Password":"123456789","Type":"FileName"}
+Response:   {"Type":FileName,"FileName":mkk9313@gmail.com_2021_22.csv} or
+			{"Type":"Error","Message":"File Not Found."}
+			{"Type":"Error","Message":"Incorrect Password"}
+			{"Type":"Error","Message":"Incorrect Email"}
+
